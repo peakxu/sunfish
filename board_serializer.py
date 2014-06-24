@@ -13,18 +13,16 @@ class BoardSerializer(object):
         if os.path.isdir(self.directory):
             shutil.rmtree(self.directory)
         os.makedirs(self.directory)
-        self.next_ply = 1
         self.curr_dir = self.directory
 
     def serialize_board(self, board):
-        next_dir = os.path.join(self.curr_dir, '.' + str(self.next_ply))
-        self.next_ply += 1
+        next_dir = os.path.join(self.curr_dir, '.next')
         os.makedirs(next_dir)
         for i, line in enumerate(board.split('\n\n')):
             line_prefix = str(10-i)
             line_content = line_prefix + line
             if i == 1:
-                line_content = ' A B C D E F G H'
+                line_content = '   A B C D E F G H'
             elif i == 0:
                 line_content = ' '
             elif i > 9:

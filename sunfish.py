@@ -358,13 +358,13 @@ def _render_board(board, board_serializer):
     board_serializer.serialize_board(unicode_board)
     print(' '.join(unicode_board))
 
-def _board_dir():
+def _game_dir():
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(script_dir, 'board')
+    return os.path.join(script_dir, 'game')
 
 def main():
     pos = Position(initial, 0, (True,True), (True,True), 0, 0)
-    board_serializer = BoardSerializer(_board_dir())
+    board_serializer = BoardSerializer(_game_dir())
     while True:
         # We add some spaces to the board before we print it.
         # That makes it more readable and pleasing.
