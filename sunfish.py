@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys
 from itertools import count
 from collections import Counter, OrderedDict, namedtuple
+from board_adapter import BoardAdapter
 
 # The table size is the maximum number of elements in the transposition table.
 TABLE_SIZE = 1e6
@@ -202,9 +203,13 @@ class Position(namedtuple('Position', 'board score wc bc ep kp')):
             if j - i == 2*N:
                 ep = i + N
             if j - i in (N+W, N+E) and q == '.':
-                board = put(board, j+S, '.')
+                w = put(board, j+S, '.')
         # We rotate the returned position, so it's ready for the next player
         return Position(board, score, wc, bc, ep, kp).rotate()
+
+    @property
+    def unicode_board(self):
+        return BoardAdapter.unicode_board(self.board)
 
     def value(self, move):
         i, j = move
@@ -316,7 +321,7 @@ def search(pos, maxn=NODES_SEARCHED):
                 lower = score
             if score < gamma:
                 upper = score
-        
+
         # print("Searched %d nodes. Depth %d. Score %d(%d/%d)" % (nodes, depth, score, lower, upper))
 
         # We stop deepening if the global N counter shows we have spent too
@@ -356,7 +361,7 @@ def main():
     while True:
         # We add some spaces to the board before we print it.
         # That makes it more readable and pleasing.
-        print(' '.join(pos.board))
+        print(' '.join(pos.unicode_board))
 
         # We query the user until she enters a legal move.
         move = None
@@ -367,7 +372,7 @@ def main():
 
         # After our move we rotate the board and print it again.
         # This allows us to see the effect of our move.
-        print(' '.join(pos.rotate().board))
+        print(' '.join(pos.rotate().unicode_board))
 
         # Fire up the engine to look for a move.
         move, score = search(pos)
