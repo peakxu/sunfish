@@ -6,6 +6,8 @@ import sys
 from itertools import count
 from collections import Counter, OrderedDict, namedtuple
 from board_adapter import BoardAdapter
+from board_serializer import BoardSerializer
+import os
 
 # The table size is the maximum number of elements in the transposition table.
 TABLE_SIZE = 1e6
@@ -207,10 +209,6 @@ class Position(namedtuple('Position', 'board score wc bc ep kp')):
         # We rotate the returned position, so it's ready for the next player
         return Position(board, score, wc, bc, ep, kp).rotate()
 
-    @property
-    def unicode_board(self):
-        return BoardAdapter.unicode_board(self.board)
-
     def value(self, move):
         i, j = move
         p, q = self.board[i], self.board[j]
@@ -355,13 +353,22 @@ def render(i):
     rank, fil = divmod(i - A1, 10)
     return chr(fil + ord('a')) + str(-rank + 1)
 
+def _render_board(board, board_serializer):
+    unicode_board = BoardAdapter.unicode_board(board)
+    board_serializer.serialize_board(unicode_board)
+    print(' '.join(unicode_board))
+
+def _board_dir():
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(script_dir, 'board')
 
 def main():
     pos = Position(initial, 0, (True,True), (True,True), 0, 0)
+    board_serializer = BoardSerializer(_board_dir())
     while True:
         # We add some spaces to the board before we print it.
         # That makes it more readable and pleasing.
-        print(' '.join(pos.unicode_board))
+        _render_board(pos.board, board_serializer)
 
         # We query the user until she enters a legal move.
         move = None
@@ -372,7 +379,7 @@ def main():
 
         # After our move we rotate the board and print it again.
         # This allows us to see the effect of our move.
-        print(' '.join(pos.rotate().unicode_board))
+        _render_board(pos.rotate().board, board_serializer)
 
         # Fire up the engine to look for a move.
         move, score = search(pos)
